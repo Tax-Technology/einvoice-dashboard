@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-# Data
+# ---------------------------
+# 1) Data Preparation
+# ---------------------------
 data = [
     ["2023", "Jordan", "B2B, B2C, B2G e-Invoicing"],
     ["2023", "Egypt", "Mandatory e-Invoicing (fully implemented in April)"],
@@ -35,19 +37,35 @@ data = [
 # Convert data to DataFrame
 df = pd.DataFrame(data, columns=["Year", "Country", "Regulation"])
 
-# Streamlit app
+# ---------------------------
+# 2) Streamlit App Title
+# ---------------------------
 st.title("Global Overview of e-Invoicing & e-Reporting Regulations - Timeline")
 
-# Custom CSS for Timeline
+# ---------------------------
+# 3) Year Filter (Optional)
+# ---------------------------
+all_years = sorted(df["Year"].unique())
+selected_years = st.multiselect("Filter by Year(s)", options=all_years, default=all_years)
+
+# If nothing is selected, display everything
+if selected_years:
+    df = df[df["Year"].isin(selected_years)]
+
+# ---------------------------
+# 4) Custom CSS for Timeline
+# ---------------------------
 st.markdown(
     """
     <style>
+    /* Timeline container */
     .timeline {
         position: relative;
         max-width: 800px;
         margin: 0 auto;
     }
 
+    /* The vertical line */
     .timeline::after {
         content: '';
         position: absolute;
@@ -59,6 +77,7 @@ st.markdown(
         margin-left: -3px;
     }
 
+    /* Containers for the timeline items */
     .timeline-container {
         padding: 10px 40px;
         position: relative;
@@ -66,14 +85,15 @@ st.markdown(
         width: 50%;
     }
 
+    /* Place the container to the left or right of the timeline */
     .timeline-container.left {
         left: 0;
     }
-
     .timeline-container.right {
         left: 50%;
     }
 
+    /* Create the circles on the timeline */
     .timeline-container::after {
         content: '';
         position: absolute;
@@ -87,10 +107,12 @@ st.markdown(
         z-index: 1;
     }
 
+    /* Position the circle on the other side */
     .timeline-container.right::after {
         left: -17px;
     }
 
+    /* Card-like container for content */
     .timeline-content {
         padding: 20px;
         background-color: #f9f9f9;
@@ -112,7 +134,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# HTML for Timeline
+# ---------------------------
+# 5) Build the Timeline HTML
+# ---------------------------
 html_content = '<div class="timeline">'
 for i, row in df.iterrows():
     side = "left" if i % 2 == 0 else "right"
@@ -126,5 +150,7 @@ for i, row in df.iterrows():
     """
 html_content += "</div>"
 
-# Render the timeline
+# ---------------------------
+# 6) Render the Timeline
+# ---------------------------
 st.markdown(html_content, unsafe_allow_html=True)
