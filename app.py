@@ -36,30 +36,95 @@ data = [
 df = pd.DataFrame(data, columns=["Year", "Country", "Regulation"])
 
 # Streamlit app
-st.title("Global Overview of e-Invoicing & e-Reporting Regulations")
+st.title("Global Overview of e-Invoicing & e-Reporting Regulations - Timeline")
 
-# Filters
-st.sidebar.header("Filters")
-selected_year = st.sidebar.multiselect("Select Year", options=df["Year"].unique(), default=df["Year"].unique())
-selected_country = st.sidebar.multiselect("Select Country", options=df["Country"].unique(), default=df["Country"].unique())
+# Custom CSS for Timeline
+st.markdown(
+    """
+    <style>
+    .timeline {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
-# Filter data based on user input
-filtered_data = df[(df["Year"].isin(selected_year)) & (df["Country"].isin(selected_country))]
+    .timeline::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        background-color: #d4d4d4;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -3px;
+    }
 
-# Display the filtered data
-st.write("### Filtered Data")
-st.dataframe(filtered_data)
+    .timeline-container {
+        padding: 10px 40px;
+        position: relative;
+        background-color: inherit;
+        width: 50%;
+    }
 
-# Download option for filtered data
-st.download_button(
-    label="Download Filtered Data as CSV",
-    data=filtered_data.to_csv(index=False),
-    file_name="filtered_e_invoicing_data.csv",
-    mime="text/csv"
+    .timeline-container.left {
+        left: 0;
+    }
+
+    .timeline-container.right {
+        left: 50%;
+    }
+
+    .timeline-container::after {
+        content: '';
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        right: -17px;
+        background-color: white;
+        border: 4px solid #f77676;
+        top: 15px;
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    .timeline-container.right::after {
+        left: -17px;
+    }
+
+    .timeline-content {
+        padding: 20px;
+        background-color: #f9f9f9;
+        position: relative;
+        border-radius: 6px;
+    }
+
+    .timeline-content h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .timeline-content p {
+        margin: 5px 0 0;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
-# Display a summary of regulations by year
-st.write("### Regulations Count by Year")
-regulations_by_year = filtered_data["Year"].value_counts().reset_index()
-regulations_by_year.columns = ["Year", "Regulation Count"]
-st.bar_chart(regulations_by_year.set_index("Year"))
+# HTML for Timeline
+html_content = '<div class="timeline">'
+for i, row in df.iterrows():
+    side = "left" if i % 2 == 0 else "right"
+    html_content += f"""
+    <div class="timeline-container {side}">
+        <div class="timeline-content">
+            <h3>{row['Year']} - {row['Country']}</h3>
+            <p>{row['Regulation']}</p>
+        </div>
+    </div>
+    """
+html_content += "</div>"
+
+# Render the timeline
+st.markdown(html_content, unsafe_allow_html=True)
