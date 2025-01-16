@@ -40,7 +40,7 @@ st.markdown(
 
 # Streamlit app title
 st.markdown('<div class="title">📄 e-Invoice XML to PDF Invoice Generator</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Easily validate and convert your XML files into professional PDF invoices 🚀</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Easily transform your e-Invoices into professional PDF Invoices 🚀</div>', unsafe_allow_html=True)
 
 # Upload XML file
 uploaded_file = st.file_uploader("📤 Upload your XML file", type=["xml"])
