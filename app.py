@@ -1,70 +1,68 @@
 import streamlit as st
 import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
+import tempfile
+import os
 
-def extract_data_from_url(url):
+# Streamlit app title
+st.title("XML to PDF Invoice Generator")
+
+# Upload XML file
+uploaded_file = st.file_uploader("Upload your XML file", type=["xml"])
+
+if uploaded_file is not None:
+    # Save the uploaded file temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".xml") as temp_file:
+        temp_file.write(uploaded_file.read())
+        temp_file_path = temp_file.name
+
+    st.write("File uploaded successfully!")
+
+    # Display the file name
+    st.write(f"File name: {uploaded_file.name}")
+
+    # Check XML validity via API
+    st.write("Validating the XML file...")
     try:
-        # Fetch webpage content
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, "html.parser")
-        text = soup.get_text()
-        return text
+        # Replace with your API endpoint for XML validation
+        validation_api_url = "https://example.com/api/validate-xml"
+        files = {"file": open(temp_file_path, "rb")}
+        response = requests.post(validation_api_url, files=files)
+
+        if response.status_code == 200:
+            validation_result = response.json()
+
+            if validation_result.get("is_valid"):
+                st.success("The XML file is valid!")
+                # Show a button to transform the XML into a PDF invoice
+                if st.button("Generate PDF Invoice"):
+                    st.write("Submitting the XML for transformation...")
+
+                    # Replace with your API endpoint for XML to PDF transformation
+                    transform_api_url = "https://example.com/api/transform-xml-to-pdf"
+                    pdf_response = requests.post(transform_api_url, files=files)
+
+                    if pdf_response.status_code == 200:
+                        # Assume the response contains the PDF file
+                        pdf_file_name = f"{os.path.splitext(uploaded_file.name)[0]}.pdf"
+                        with open(pdf_file_name, "wb") as pdf_file:
+                            pdf_file.write(pdf_response.content)
+
+                        st.success("PDF Invoice generated successfully!")
+                        # Provide a download link
+                        st.download_button(
+                            label="Download PDF Invoice",
+                            data=pdf_response.content,
+                            file_name=pdf_file_name,
+                            mime="application/pdf"
+                        )
+                    else:
+                        st.error("Failed to generate the PDF invoice. Please try again.")
+            else:
+                st.error("The XML file is invalid. Please upload a valid XML file.")
+        else:
+            st.error("Failed to validate the XML file. Please try again.")
     except Exception as e:
-        st.error(f"Failed to fetch or parse the URL: {e}")
-        return None
-
-def generate_json(data, source_url):
-    return {
-        "COUNTRY_CODE": {
-            "country": "N/A",
-            "latitude": "N/A",
-            "longitude": "N/A",
-            "continent": "N/A",
-            "system": "N/A",
-            "legislation": "N/A",
-            "transposed_the_directive_2014_55_EU": "N/A",
-            "format": "N/A",
-            "b2g": {
-                "mandatory": False,
-                "description": "N/A"
-            },
-            "b2b": {
-                "mandatory": False,
-                "description": "N/A"
-            },
-            "saf-t": {
-                "introduced": False,
-                "description": "N/A"
-            },
-            "integrity": "N/A",
-            "buyers_consent": "N/A",
-            "storage_period": "N/A",
-            "platform": "N/A",
-            "source": source_url,
-            "last_updated": datetime.now().strftime("%Y-%m-%d")
-        }
-    }
-
-def app():
-    st.title("eInvoicing JSON Generator")
-    st.write("Provide a URL or text to generate the corresponding JSON.")
-
-    option = st.radio("Choose Input Type:", ["URL", "Text"])
-    
-    if option == "URL":
-        url = st.text_input("Enter the webpage URL:")
-        if url:
-            data = extract_data_from_url(url)
-            if data:
-                json_output = generate_json(data, url)
-                st.json(json_output)
-    else:
-        text = st.text_area("Enter the text:")
-        if text:
-            json_output = generate_json(text, "Provided Text")
-            st.json(json_output)
-
-if __name__ == "__main__":
-    app()
+        st.error(f"An error occurred: {e}")
+    finally:
+        # Cleanup: Remove the temporary file
+        os.remove(temp_file_path)
