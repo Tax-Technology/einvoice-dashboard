@@ -3,35 +3,64 @@ import requests
 import tempfile
 import os
 
-# Custom CSS for better appearance
+# Custom CSS for responsiveness and better appearance
 st.markdown(
     """
     <style>
+    /* Base styles */
+    body {
+        margin: 0;
+        padding: 0;
+    }
     .title {
-        font-size: 36px;
+        font-size: 2.5rem; /* Adjusted for responsive scaling */
         color: #FFFFFF;
         text-align: center;
         font-weight: bold;
         margin-bottom: 20px;
     }
     .subtitle {
-        font-size: 20px;
+        font-size: 1.5rem;
         color: #555555;
         text-align: center;
         margin-bottom: 20px;
     }
+    .success, .error {
+        font-size: 1rem;
+        font-weight: bold;
+        text-align: center;
+    }
     .success {
         color: green;
-        font-size: 18px;
-        font-weight: bold;
     }
     .error {
         color: red;
-        font-size: 18px;
-        font-weight: bold;
     }
     .center {
         text-align: center;
+    }
+    /* Responsive design for smaller screens */
+    @media (max-width: 768px) {
+        .title {
+            font-size: 2rem; /* Smaller font size for tablets and phones */
+        }
+        .subtitle {
+            font-size: 1.2rem;
+        }
+        .success, .error {
+            font-size: 0.9rem;
+        }
+    }
+    @media (max-width: 480px) {
+        .title {
+            font-size: 1.5rem; /* Further reduced for small phones */
+        }
+        .subtitle {
+            font-size: 1rem;
+        }
+        .success, .error {
+            font-size: 0.8rem;
+        }
     }
     </style>
     """,
