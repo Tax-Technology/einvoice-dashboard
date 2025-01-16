@@ -4,7 +4,7 @@ import tempfile
 import os
 
 # Streamlit app title
-st.title("XML to PDF Invoice Generator")
+st.title("e-Invoice XML to PDF Invoice Generator")
 
 # Upload XML file
 uploaded_file = st.file_uploader("Upload your XML file", type=["xml"])
