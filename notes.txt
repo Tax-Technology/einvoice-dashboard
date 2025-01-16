@@ -1,0 +1,79 @@
+Here are some explanations and detailed requirements for seamless API integration based on the app code:
+
+Explanation
+
+1. File Upload:
+	•	The user uploads an XML file using the file uploader component.
+	•	The app temporarily saves the uploaded XML file to the server using Python’s tempfile library. The file is then ready for API interaction.
+
+2. Validation:
+	•	The app makes a POST request to the validate-xml API endpoint.
+	•	The API receives the uploaded XML file as a binary file in the request body.
+	•	Based on the API response, the app displays:
+	•	A success message if the XML is valid.
+	•	An error message if the XML is invalid or if the validation API fails.
+
+3. PDF Generation:
+	•	If the XML file is valid, the user can click the “Generate PDF Invoice” button.
+	•	The app submits the XML file to the transform-xml-to-pdf API endpoint via a POST request.
+	•	Upon successful response:
+	•	The API returns the generated PDF file as binary content.
+	•	The app displays a download button for the user to download the generated PDF file.
+
+4. Error Handling:
+	•	The app gracefully handles exceptions during file upload, validation, or transformation.
+	•	If any API call fails or encounters an error, the app displays an appropriate error message to the user.
+
+Required Backend APIs
+
+1. Validation API
+	•	Endpoint: POST /api/validate-xml
+	•	Purpose: To validate the structure and content of the uploaded XML file.
+	•	Input:
+	•	XML file uploaded by the user.
+	•	The file is sent as part of a multipart/form-data request with the key "file".
+	•	Output:
+	•	Success: JSON response with the following format:
+
+{
+  "is_valid": true
+}
+
+
+	•	Failure: JSON response with an appropriate error message, for example:
+
+{
+  "is_valid": false,
+  "error": "Invalid XML format"
+}
+
+
+
+2. Transformation API
+	•	Endpoint: POST /api/transform-xml-to-pdf
+	•	Purpose: To generate a PDF invoice from the validated XML file.
+	•	Input:
+	•	XML file uploaded by the user.
+	•	The file is sent as part of a multipart/form-data request with the key "file".
+	•	Output:
+	•	Success: Binary content of the generated PDF file.
+	•	Failure: JSON response with an appropriate error message, for example:
+
+{
+  "error": "Failed to generate PDF. Please check the XML format."
+}
+
+Integration Notes
+	•	Replace placeholder API endpoints in the app (https://example.com/api/validate-xml and https://example.com/api/transform-xml-to-pdf) with the actual backend API URLs.
+	•	Ensure that both endpoints handle multipart/form-data requests properly.
+	•	The validation API should return a clear true/false response for "is_valid".
+	•	The transformation API should return the PDF file directly as binary content, with the correct MIME type (application/pdf).
+
+Backend API Expected Behavior
+	1.	Validation API:
+	•	Perform schema validation on the XML file.
+	•	Respond with an accurate status (is_valid) and error details, if applicable.
+	2.	Transformation API:
+	•	Accept a valid XML file as input.
+	•	Generate a well-formatted PDF invoice.
+	•	Return the PDF as a binary file or an error if the transformation fails.
